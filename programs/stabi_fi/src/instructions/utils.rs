@@ -1,7 +1,22 @@
 use anchor_lang::{prelude::*, solana_program::native_token::LAMPORTS_PER_SOL};
 use pyth_solana_receiver_sdk::price_update::{get_feed_id_from_hex, PriceUpdateV2};
 
-use crate::{error::ErrorCode, MAX_PRICE_FEED_AGE, SOL_USD_PRICE_FEED_HEX};
+use crate::{error::ErrorCode, Collateral, Config, MAX_PRICE_FEED_AGE, SOL_USD_PRICE_FEED_HEX};
+
+pub fn check_health_factor(
+    price_update_account: &Account<PriceUpdateV2>,
+    collateral_account: &Account<Collateral>,
+    config_account: &Account<Config>
+) -> Result<()>{
+    let collateral_value_in_usd = get_usd_value(price_update_account, &collateral_account.lamport_balance)?;
+
+    let collateral_value_with_threshold_consideration = (collateral_value_in_usd * config_account.liquidation_threshold) / 100;
+
+    let health_factor = collateral_value_with_threshold_consideration / collateral_account.amount_minted;
+
+    require!(health_factor >= config_account.min_health_factor, ErrorCode::BelowHealthFactor);
+    Ok(())
+}
 
 pub fn get_usd_value(
     price_update_account: &Account<PriceUpdateV2>,
