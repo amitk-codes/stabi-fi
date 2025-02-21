@@ -15,7 +15,18 @@ declare_id!("AbjnBAfwWjLNWEYSdAwsMyw1rECnUwbPMW9gEdgjZSog");
 pub mod stabi_fi {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        initialize::handler(ctx)
+    pub fn initialize(
+        ctx: Context<InitializeConfig>,
+        liquidation_threshold: u64,
+        liquidation_bonus: u64,
+        min_health_factor: u64,
+    ) -> Result<()> {
+        initialize_config_handler(
+            ctx,
+            liquidation_threshold,
+            liquidation_bonus,
+            min_health_factor,
+        )?;
+        Ok(())
     }
 }
