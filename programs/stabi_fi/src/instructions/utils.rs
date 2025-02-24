@@ -8,15 +8,26 @@ pub fn check_health_factor(
     collateral_account: &Account<Collateral>,
     config_account: &Account<Config>
 ) -> Result<()>{
+    let health_factor = calculate_health_factor(price_update_account, collateral_account, config_account)?;
+
+    require!(health_factor >= config_account.min_health_factor, ErrorCode::BelowHealthFactor);
+    Ok(())
+}
+
+pub fn calculate_health_factor(
+    price_update_account: &Account<PriceUpdateV2>,
+    collateral_account: &Account<Collateral>,
+    config_account: &Account<Config>
+) -> Result<u64>{
     let collateral_value_in_usd = get_usd_value(price_update_account, &collateral_account.lamport_balance)?;
 
     let collateral_value_with_threshold_consideration = (collateral_value_in_usd * config_account.liquidation_threshold) / 100;
 
     let health_factor = collateral_value_with_threshold_consideration / collateral_account.amount_minted;
 
-    require!(health_factor >= config_account.min_health_factor, ErrorCode::BelowHealthFactor);
-    Ok(())
+    Ok(health_factor)
 }
+
 
 pub fn get_usd_value(
     price_update_account: &Account<PriceUpdateV2>,

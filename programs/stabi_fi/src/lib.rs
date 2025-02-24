@@ -44,34 +44,13 @@ pub mod stabi_fi {
         amount_collateral: u64,
         amount_to_burn: u64,
     ) -> Result<()> {
-        let collateral_account = &mut ctx.accounts.collateral_account;
-        collateral_account.lamport_balance = ctx.accounts.sol_account.lamports() - amount_collateral;
-        collateral_account.amount_minted -= amount_to_burn;
-    
-        check_health_factor(
-            &ctx.accounts.price_update,
-            &ctx.accounts.collateral_account,
-            &ctx.accounts.config_account,
-        )?;
-    
-        burn_tokens(
-            &ctx.accounts.mint_account,
-            &ctx.accounts.token_account,
-            &ctx.accounts.depositor,
-            &ctx.accounts.token_program,
-            amount_to_burn,
-        )?;
-    
-        withdraw_sols(
-            &ctx.accounts.sol_account,
-            &ctx.accounts.depositor.to_account_info(),
-            &ctx.accounts.system_program,
-            &ctx.accounts.depositor.key(),
-            ctx.accounts.collateral_account.bump_sol_account,
-            amount_collateral,
-        )?;
-    
+        withdraw_collateral_and_burn_tokens_handler(ctx, amount_collateral, amount_to_burn)?;
+
         Ok(())
     }
-    
+
+    pub fn liquidate(ctx: Context<Liquidate>, amount_to_burn: u64) -> Result<()> {
+        liquidate_handler(ctx, amount_to_burn)?;
+        Ok(())
+    }
 }
