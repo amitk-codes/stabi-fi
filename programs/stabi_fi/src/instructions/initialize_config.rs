@@ -22,12 +22,12 @@ pub struct InitializeConfig<'info> {
         payer = authority,
         seeds = [b"mint"],
         bump,
-        mint::authority = mint_authority,
-        mint::freeze_authority = mint_authority,
+        mint::authority = mint_account,
+        mint::freeze_authority = mint_account,
         mint::decimals = 9,
         mint::token_program = token_program
     )]
-    pub mint_authority: InterfaceAccount<'info, Mint>,
+    pub mint_account: InterfaceAccount<'info, Mint>,
 
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token2022>,
@@ -41,9 +41,9 @@ pub fn initialize_config_handler(
 ) -> Result<()> {
     ctx.accounts.config_account.set_inner(Config {
         authority: ctx.accounts.authority.key(),
-        mint_account: ctx.accounts.mint_authority.key(),
+        mint_account: ctx.accounts.mint_account.key(),
         bump: ctx.bumps.config_account,
-        bump_mint_account: ctx.bumps.mint_authority,
+        bump_mint_account: ctx.bumps.mint_account,
         liquidation_threshold,
         liquidation_bonus,
         min_health_factor,
