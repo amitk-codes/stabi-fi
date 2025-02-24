@@ -29,4 +29,13 @@ pub mod stabi_fi {
         )?;
         Ok(())
     }
+
+    pub fn deposit_collateral_and_mint_stable_tokens(
+        ctx: Context<DepositCollateralAndMintTokens>,
+        amount_to_mint: u64,
+        amount_collateral: u64,
+    ) -> Result<()> {
+        deposit_collateral_and_mint_tokens_handler(ctx, amount_to_mint, amount_collateral)?;
+        Ok(())
+    }
 }
